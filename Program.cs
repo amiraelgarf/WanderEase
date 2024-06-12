@@ -27,23 +27,24 @@ app.MapGet("/destinations/all-seasons", async (IDbConnection db) =>
 {
     string[] seasons = { "Winter", "Summer", "Spring", "Autumn" };
     string html = "";
-    Console.WriteLine(seasons);
 
     foreach (var season in seasons)
     {
         var destinations = await db.QueryAsync("SELECT * FROM destinations WHERE Season = @Season ORDER BY RANDOM() LIMIT 1", new { Season = season });
         var randomDestination = destinations.FirstOrDefault();
 
-        html += $@"
-        <div class=""card card-season"">
-            <img src=""../{randomDestination?.Image}"" class=""card-img-top"" alt=""..."">
-            <div class=""card-body"">
-                <p class=""card-season-word"">{randomDestination?.Season}</p>
+        html += $"""
+        <div class="card card-season">
+            <img src="../{randomDestination?.Image}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <p class="card-season-word">{randomDestination?.Season}</p>
             </div>
-            <div class=""location-text"">
-                <p class=""location"">{randomDestination?.Name}</p>
+            <div class="location-text">
+                <p class="location">{randomDestination?.Name}</p>
             </div>
-        </div>";
+        </div>
+        """;
+
     }
 
     return Results.Content(html, "text/html");
@@ -69,8 +70,6 @@ app.MapPost("/destinations", async (HttpContext context, IDbConnection db) =>
     var destinationName = form["destination"];
     var season = form["season"];
 
-    Console.WriteLine(season);
-
 
     if (file == null || file.Length == 0)
     {
@@ -89,7 +88,6 @@ app.MapPost("/destinations", async (HttpContext context, IDbConnection db) =>
 
     var sql = "INSERT INTO destinations (Id, Name, Image, Season) VALUES (@Id, @Name, @Image, @Season)";
     var rows = await db.ExecuteAsync(sql, new { Id = fileId, Name = destinationName, Image = relativePath, Season = season });
-    Console.WriteLine("The number of affected rows: " + rows);
     return Results.NoContent();
 });
 
